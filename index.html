@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Giri's Tech Morning Brief</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #f0c040;
+    --accent2: #40c0f0;
+    --accent3: #f04080;
+    --text: #e8e8f0;
+    --muted: #6060808;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    top: -200px; left: -200px;
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, rgba(240,192,64,0.06) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -200px; right: -200px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(64,192,240,0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 900px; margin: 0 auto; position: relative; z-index: 1; }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 36px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    animation: fadeDown 0.6s ease both;
+  }
+
+  .logo { 
+    font-size: 11px; 
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+
+  h1 { 
+    font-size: clamp(22px, 5vw, 36px); 
+    font-weight: 800; 
+    line-height: 1.1;
+    letter-spacing: -0.5px;
+  }
+
+  h1 span { color: var(--accent); }
+
+  #clock {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(20px, 4vw, 28px);
+    color: var(--accent2);
+    text-align: right;
+    letter-spacing: 2px;
+  }
+
+  #date-str {
+    font-size: 11px;
+    color: #555;
+    text-align: right;
+    margin-top: 4px;
+    font-family: 'Space Mono', monospace;
+    letter-spacing: 1px;
+  }
+
+  .routine {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 32px;
+    animation: fadeDown 0.6s 0.1s ease both;
+  }
+
+  .routine-title {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 12px;
+  }
+
+  .routine-steps {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-family: 'Space Mono', monospace;
+  }
+
+  .step-num {
+    background: var(--accent);
+    color: #000;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #555;
+    font-family: 'Space Mono', monospace;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-decoration: none;
+    color: var(--text);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: all 0.2s ease;
+    animation: fadeUp 0.5s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .card:hover {
+    border-color: #333;
+    transform: translateY(-2px);
+    background: #15151f;
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  .card.yellow::before { background: var(--accent); }
+  .card.blue::before { background: var(--accent2); }
+  .card.red::before { background: var(--accent3); }
+  .card.green::before { background: #40f090; }
+
+  .card-icon { font-size: 20px; }
+
+  .card-name {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+  }
+
+  .card-desc {
+    font-size: 11px;
+    color: #666;
+    font-family: 'Space Mono', monospace;
+    line-height: 1.4;
+  }
+
+  .card-tag {
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-family: 'Space Mono', monospace;
+    margin-top: auto;
+    padding-top: 6px;
+  }
+
+  .card.yellow .card-tag { color: var(--accent); }
+  .card.blue .card-tag { color: var(--accent2); }
+  .card.red .card-tag { color: var(--accent3); }
+  .card.green .card-tag { color: #40f090; }
+
+  .section { margin-bottom: 32px; animation: fadeUp 0.5s ease both; }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  footer {
+    text-align: center;
+    font-size: 10px;
+    color: #333;
+    font-family: 'Space Mono', monospace;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    letter-spacing: 2px;
+  }
+
+  .card:nth-child(1) { animation-delay: 0.05s; }
+  .card:nth-child(2) { animation-delay: 0.10s; }
+  .card:nth-child(3) { animation-delay: 0.15s; }
+  .card:nth-child(4) { animation-delay: 0.20s; }
+  .card:nth-child(5) { animation-delay: 0.25s; }
+  .card:nth-child(6) { animation-delay: 0.30s; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div>
+      <div class="logo">// Morning Brief</div>
+      <h1>Giri's Tech<br><span>Pulse</span></h1>
+    </div>
+    <div>
+      <div id="clock">--:--:--</div>
+      <div id="date-str">Loading...</div>
+    </div>
+  </header>
+
+  <div class="routine">
+    <div class="routine-title">⚡ Your 30-Min Morning Routine</div>
+    <div class="routine-steps">
+      <div class="step"><div class="step-num">1</div> TLDR Newsletter — 5 min</div>
+      <div class="step"><div class="step-num">2</div> Hacker News Top 10 — 10 min</div>
+      <div class="step"><div class="step-num">3</div> X Feed — 10 min</div>
+      <div class="step"><div class="step-num">4</div> TechCrunch / Verge — 5 min</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Newsletters</div>
+    <div class="grid">
+      <a href="https://tldr.tech" target="_blank" class="card yellow">
+        <div class="card-icon">📧</div>
+        <div class="card-name">TLDR Tech</div>
+        <div class="card-desc">Best daily digest. 5 min read. All of tech.</div>
+        <div class="card-tag">tldr.tech</div>
+      </a>
+      <a href="https://therundown.ai" target="_blank" class="card blue">
+        <div class="card-icon">🤖</div>
+        <div class="card-name">The Rundown AI</div>
+        <div class="card-desc">Daily AI news — models, tools, industry moves.</div>
+        <div class="card-tag">therundown.ai</div>
+      </a>
+      <a href="https://www.morningbrew.com/daily" target="_blank" class="card green">
+        <div class="card-icon">☕</div>
+        <div class="card-name">Morning Brew</div>
+        <div class="card-desc">Business + tech. Breezy, conversational tone.</div>
+        <div class="card-tag">morningbrew.com</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">News Sites</div>
+    <div class="grid">
+      <a href="https://techcrunch.com" target="_blank" class="card green">
+        <div class="card-icon">🚀</div>
+        <div class="card-name">TechCrunch</div>
+        <div class="card-desc">Startups, funding, product launches.</div>
+        <div class="card-tag">techcrunch.com</div>
+      </a>
+      <a href="https://theverge.com" target="_blank" class="card blue">
+        <div class="card-icon">◈</div>
+        <div class="card-name">The Verge</div>
+        <div class="card-desc">Consumer tech, culture, Big Tech news.</div>
+        <div class="card-tag">theverge.com</div>
+      </a>
+      <a href="https://arstechnica.com" target="_blank" class="card yellow">
+        <div class="card-icon">🔬</div>
+        <div class="card-name">Ars Technica</div>
+        <div class="card-desc">Deep technical coverage. Science + security.</div>
+        <div class="card-tag">arstechnica.com</div>
+      </a>
+      <a href="https://news.ycombinator.com" target="_blank" class="card red">
+        <div class="card-icon">🧡</div>
+        <div class="card-name">Hacker News</div>
+        <div class="card-desc">Raw, unfiltered. Best signal-to-noise in tech.</div>
+        <div class="card-tag">news.ycombinator.com</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">Social & Community</div>
+    <div class="grid">
+      <a href="https://x.com" target="_blank" class="card yellow">
+        <div class="card-icon">𝕏</div>
+        <div class="card-name">X / Twitter</div>
+        <div class="card-desc">Follow: @sama @karpathy @jeremyphoward @benedictevans</div>
+        <div class="card-tag">x.com</div>
+      </a>
+      <a href="https://linkedin.com" target="_blank" class="card blue">
+        <div class="card-icon">💼</div>
+        <div class="card-name">LinkedIn</div>
+        <div class="card-desc">Follow AWS, Google Cloud, Gartner, McKinsey Digital.</div>
+        <div class="card-tag">linkedin.com</div>
+      </a>
+      <a href="https://reddit.com/r/technology" target="_blank" class="card red">
+        <div class="card-icon">👾</div>
+        <div class="card-name">Reddit Tech</div>
+        <div class="card-desc">r/technology · r/MachineLearning · r/artificial</div>
+        <div class="card-tag">reddit.com</div>
+      </a>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-label">YouTube — Weekend Deep Dives</div>
+    <div class="grid">
+      <a href="https://youtube.com/@Fireship" target="_blank" class="card red">
+        <div class="card-icon">🔥</div>
+        <div class="card-name">Fireship</div>
+        <div class="card-desc">100-second tech explainers. Brutally efficient.</div>
+        <div class="card-tag">@Fireship</div>
+      </a>
+      <a href="https://youtube.com/@TwoMinutePapers" target="_blank" class="card blue">
+        <div class="card-icon">📄</div>
+        <div class="card-name">Two Minute Papers</div>
+        <div class="card-desc">Latest AI research, made digestible.</div>
+        <div class="card-tag">@TwoMinutePapers</div>
+      </a>
+      <a href="https://youtube.com/@mreflow" target="_blank" class="card yellow">
+        <div class="card-icon">🌊</div>
+        <div class="card-name">Matt Wolfe</div>
+        <div class="card-desc">AI tools, news, and weekly roundups.</div>
+        <div class="card-tag">@mreflow</div>
+      </a>
+    </div>
+  </div>
+
+  <footer>BUILT FOR GIRI · TECH PULSE DASHBOARD · UPDATED DAILY</footer>
+</div>
+
+<script>
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,'0');
+    const m = String(now.getMinutes()).padStart(2,'0');
+    const s = String(now.getSeconds()).padStart(2,'0');
+    document.getElementById('clock').textContent = `${h}:${m}:${s}`;
+    const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    document.getElementById('date-str').textContent = 
+      `${days[now.getDay()]} · ${months[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  }
+  updateClock();
+  setInterval(updateClock, 1000);
+</script>
+</body>
+</html>
